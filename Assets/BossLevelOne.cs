@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 enum PlatformType
@@ -56,6 +57,8 @@ public class BossLevelOne : MonoBehaviour
             }
         }
 
+        MakePathInPlatforms(grid);
+
         for(int i = 0; i < rows; i++)
         {
             string print = "";
@@ -68,6 +71,159 @@ public class BossLevelOne : MonoBehaviour
                     print += "U  ";
             }
             Debug.Log(print);
+        }
+    }
+
+    void MakePathInPlatforms(List<PlatformType>[,] grid)
+    {
+        //Randomly select starting platform
+        int start_platform_int = find_stable_platform_in_row(0, grid);
+        //Randomly select goal platform
+        int goal_platform_int = find_stable_platform_in_row(rows - 1, grid);
+        Debug.Log("goal: " + goal_platform_int);
+        //Get the coordinate representation of the start platform on the grid
+        int[] start_platform_coords = int_to_grid(start_platform_int);
+        int start_platform_row = start_platform_coords[0];
+        int start_platform_col = start_platform_coords[1];
+
+        //Create queue of numbers [0, rows*cols]
+        //Create distance array of size rows*cols, initialize all values to infinity
+        //Set distance[player position] = 0
+        int[] distances = new int[rows*cols];
+        for(int i = 0; i < rows*cols; i++) {
+            distances[i] = int.MaxValue;
+        }
+        //distance[starting platform position] = 0
+        distances[start_platform_int] = 0;
+
+        int[] parents = new int[rows*cols];
+        for(int i = 0; i < rows*cols; i++) {
+            parents[i] = -1;
+        }
+
+        //Representation of priority queue where values are int arrays int[] where int[][0] = priority/distance, int[][1] = value/vertex
+        List<int[]> priority_list = new List<int[]>(rows*cols);
+        for(int i = 0; i < rows*cols; i++) {
+            priority_list.Add(new int[] { distances[i], i });
+        }
+
+        //Up right, up, up left, right, and left
+        int[][] directions_array = new int[][] { 
+                                                new int[] { 1, 1 },
+                                                new int[] { 1, 0 },
+                                                new int[] { 1, -1 },
+                                                new int[] { 0, 1 },
+                                                new int[] { 0, -1 }
+                                            };
+
+        while(priority_list.Count != 0)
+        {
+            //Get lowest priority (distance) element from int[] values of priority_list
+            int lowest_priority = priority_list.Min(distance_and_val => distance_and_val[0]);
+            //Get actual value of the first lowest priority (distance) element from priority_list
+            int u = priority_list.FirstOrDefault(distance_and_val => distance_and_val[0] == lowest_priority)[1];
+            
+            //To remove u from the priority_list, remove at index u (the value of u is also its index in the list based on the way we constructed it)
+            int index_of_u = priority_list.FindIndex(distance_and_val => distance_and_val[1] == u);
+            priority_list.RemoveAt(index_of_u);
+
+            //Convert u to grid coordinates
+            int[] u_coords = int_to_grid(u);
+            int u_row = u_coords[0];
+            int u_col = u_coords[1];
+
+            //Skip the last row of the platforms because there are no platforms ahead of them
+            if (u_row == (rows - 1)) {
+                continue;
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                int[] directions = directions_array[i];
+                if ((u_col + directions[1] > -1) && (u_col + directions[1] < cols))
+                {
+                    int v_row = u_row + directions[0];
+                    int v_col = u_col + directions[1];
+                    int v = grid_to_int(v_row, v_col);
+                    //Check if the neighbor v is in the priority_list
+                    if (priority_list.Any(distance_and_val => distance_and_val[1] == v))
+                    {
+                        //If the neighbor is an unstable platform, moving into it should be a non-zero cost
+                        int edge_weight = 0;
+                        if (grid[v_row, v_col][0] == PlatformType.UNSTABLE)
+                        {
+                            edge_weight = 1000;
+                        }
+
+                        int d = distances[u] + edge_weight;
+                        if (d < distances[v]) {
+                            distances[v] = d;
+                            parents[v] = u;
+                        }
+                        
+                        //Update priority of v
+                        int index_of_v = priority_list.FindIndex(distance_and_val => distance_and_val[1] == v);
+                        priority_list[index_of_v][0] = distances[v];
+                    }
+                }
+            }
+        }
+
+        //Get rid of unstable platforms in shortest path between player & goal platform using the parents array constructed from Dijkstra's
+        delete_walls(start_platform_int, goal_platform_int, parents, grid);
+    }
+
+    //Returns the integer representation of a stable platform in the given row of the grid
+    int find_stable_platform_in_row(int row_index, List<PlatformType>[,] grid)
+    {
+        int platform_num;
+        while(true)
+        {
+            int guess_index = Random.Range(0, cols - 1);
+            if (grid[row_index, guess_index][0] == PlatformType.STABLE)
+            {
+                platform_num = grid_to_int(row_index, guess_index);
+                break;
+            }
+        }
+        return platform_num;
+    }
+
+    //Helper method to convert integers to grid positions
+    int grid_to_int(int grid_pos_x, int grid_pos_y)
+    {
+        return (grid_pos_x * cols) + (grid_pos_y);
+    }
+
+    //Helper method to convert grid positions to integers
+    int[] int_to_grid(int num)
+    {
+        int quotient = num / rows;
+        int remainder = num % cols;
+        return new int[] { quotient, remainder };
+    }
+
+    //Helper method to delete any walls in the path from u to v
+    void delete_walls(int u, int v, int[] parents, List<PlatformType>[,] grid)
+    {
+        //Debug.Log("u: " + u + ", v: " + v);
+        if (u < 0 || v < 0)
+        {
+            return;
+        }
+
+        if (u != v)
+        {
+            Debug.Log(v);
+            delete_walls(u, parents[v], parents, grid);
+            int[] v_coords = int_to_grid(v);
+            if (grid[v_coords[0], v_coords[1]][0] == PlatformType.UNSTABLE)
+            {
+                grid[v_coords[0], v_coords[1]][0] = PlatformType.STABLE;
+            }
+        }
+        else {
+            return;
         }
     }
 
