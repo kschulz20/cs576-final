@@ -30,6 +30,22 @@ public class NotebookRightClick : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData pointerEventData)
     {
-        Debug.Log("Notebook right button clicked!");
+        notebook_page = exploration_manager.notebook_page;
+        notebook_page++;
+        exploration_manager.UpdateNotebookPage(notebook_page);
+        Debug.Log(notebook_page);
+        notebook_right_button.SetActive(false);
+        notebook_left_button.SetActive(true);
+        string new_notebook_text = "";
+        int counter = notebook_page * 3 - 2;
+        for (int i = notebook_page * 3 - 3; i <= notebook_page * 3 - 1; i++)
+        {
+            if (i >= 0 && i < notebook_notes.Count)
+            {
+                new_notebook_text += counter.ToString() + ". " + exploration_manager.stage_one_item_to_info[exploration_manager.notebook_notes[i]] + "\n";
+                counter++;
+            }
+        }
+        notebook_text.GetComponent<Text>().text = new_notebook_text;
     }
 }
