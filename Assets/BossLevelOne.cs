@@ -115,11 +115,15 @@ public class BossLevelOne : MonoBehaviour
                 if (grid[i, j][0] == PlatformType.STABLE)
                 {
                     int platform_number = grid_to_int(i, j);
-                    GameObject platform = GameObject.Find("Cube " + "(" + platform_number + ")");
+                    GameObject platform = GameObject.Find("Platform " + "(" + platform_number + ")");
+                    if (platform == null)
+                        Debug.Log("Error: could not find Platform game object");
                     platform.GetComponent<PlatformFall>().enabled = false;
                     platform.GetComponent<BoxCollider>().enabled = false;
 
-                    TextMeshProUGUI platform_as_text = GameObject.Find("Text (TMP) " + "(" + platform_number + ")").GetComponent<TextMeshProUGUI>();
+                    TextMeshProUGUI platform_as_text = GameObject.Find("PlatformText " + "(" + platform_number + ")").GetComponent<TextMeshProUGUI>();
+                    if (platform_as_text == null)
+                        Debug.Log("Error: could not find game object PlatformText");
                     platform_as_text.text = "1";
                     platform_as_text.color = green_for_text;
                 }
@@ -463,6 +467,7 @@ public class BossLevelOne : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Update timer displayed on platform canvas
         if (timer > 0.0f)
         {
             timer -= Time.deltaTime;
