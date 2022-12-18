@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 enum PlatformType
 {
@@ -15,49 +18,70 @@ public class BossLevelOne : MonoBehaviour
     int cols;
     int row_difference;
     int function_calls;
+    Color32 green_for_text;
+    public Canvas platform_canvas;
+    //Internal variable for the number of seconds the player has to memorize the platforms
+    private int seconds_for_platform_memorization;
+    public TextMeshProUGUI timer_text;
+    //Timer for changing platform canvas' displayed timer
+    private float timer;
+    //To keep track if the player is memorizing the platforms - used by Turret.cs to know when to start firing the turret
+    public bool cutscene_being_shown;
     // Start is called before the first frame update
     void Start()
     {
+        //CSP stuff
         function_calls = 100000;
         //Dimensions of grid
-        rows = 14;
+        rows = 12;
         cols = 6;
         //For CSP calculation
         row_difference = 10;
+        green_for_text = new Color32(28, 214, 21, 255);
         //Represents the platforms
         List<PlatformType>[,] grid = new List<PlatformType>[rows, cols];
         //For platforms with no assignment yet - for CSP
         List<int[]> unassigned = new List<int[]>();
 
-        bool success = false;
-        while(!success)
-        {   
-            //Randomly fill grid with assignments of either 0 or 1 - give 4/5 chance to 1 coming first
-            for(int i = 0; i < rows; i++)
-            {
-                for(int j = 0; j < cols; j++)
-                {
-                    if (Random.Range(1, 4) == 1)
-                        grid[i, j] = new List<PlatformType> { PlatformType.STABLE, PlatformType.UNSTABLE };
-                    else
-                        grid[i, j] = new List<PlatformType> { PlatformType.UNSTABLE, PlatformType.STABLE };
+        //Timer stuff
+        seconds_for_platform_memorization = 1;
+        //Set the timer on the platform canvas to have the amount of seconds set here
+        timer_text.text = string.Format("{0}", seconds_for_platform_memorization);
+        timer = seconds_for_platform_memorization;
 
-                    unassigned.Add(new int[] { i, j });
-                    // Console.WriteLine("[" + i + ", " + j + "]: " + grid[i, j][0] + "," + grid[i, j][1]);
-                }
-            }
+        cutscene_being_shown = true;
 
-            success = BackTrackingSearch(grid, unassigned);
-            if (!success)
-            {
-                Debug.Log("Trying to generate solution again...");
-                unassigned.Clear();
-                grid = new List<PlatformType>[rows, cols];
-                function_calls = 0;
-            }
-        }
+        // bool success = false;
+        // while(!success)
+        // {   
+        //     //Randomly fill grid with assignments of either 0 or 1 - give 4/5 chance to 1 coming first
+        //     for(int i = 0; i < rows; i++)
+        //     {
+        //         for(int j = 0; j < cols; j++)
+        //         {
+        //             if (Random.Range(1, 4) == 1)
+        //                 grid[i, j] = new List<PlatformType> { PlatformType.STABLE, PlatformType.UNSTABLE };
+        //             else
+        //                 grid[i, j] = new List<PlatformType> { PlatformType.UNSTABLE, PlatformType.STABLE };
+        //             unassigned.Add(new int[] { i, j });
+        //             // Console.WriteLine("[" + i + ", " + j + "]: " + grid[i, j][0] + "," + grid[i, j][1]);
+        //         }
+        //     }
 
-        MakePathInPlatforms(grid);
+        //     success = BackTrackingSearch(grid, unassigned);
+        //     if (!success)
+        //     {
+        //         Debug.Log("Trying to generate solution again...");
+        //         unassigned.Clear();
+        //         grid = new List<PlatformType>[rows, cols];
+        //         function_calls = 0;
+        //     }
+        // }
+
+        //MakePathInPlatforms(grid);
+        InitializeGrid(grid);
+        ScuffedMakePathInPlatforms(grid);
+        DisableScriptsOnStablePlatforms(grid);
 
         for(int i = 0; i < rows; i++)
         {
@@ -72,6 +96,75 @@ public class BossLevelOne : MonoBehaviour
             }
             Debug.Log(print);
         }
+
+        StartCoroutine(WaitXSeconds(seconds_for_platform_memorization));
+    }
+
+    IEnumerator WaitXSeconds(int time_to_wait)
+    {
+        yield return new WaitForSeconds(time_to_wait);
+        platform_canvas.gameObject.SetActive(false);
+    }
+
+    void DisableScriptsOnStablePlatforms(List<PlatformType>[,] grid)
+    {
+        for(int i = 0; i < rows; i++)
+        {
+            for(int j = 0; j < cols; j++)
+            {
+                if (grid[i, j][0] == PlatformType.STABLE)
+                {
+                    int platform_number = grid_to_int(i, j);
+                    GameObject platform = GameObject.Find("Cube " + "(" + platform_number + ")");
+                    platform.GetComponent<PlatformFall>().enabled = false;
+                    platform.GetComponent<BoxCollider>().enabled = false;
+
+                    TextMeshProUGUI platform_as_text = GameObject.Find("Text (TMP) " + "(" + platform_number + ")").GetComponent<TextMeshProUGUI>();
+                    platform_as_text.text = "1";
+                    platform_as_text.color = green_for_text;
+                }
+            }
+        }
+    }
+
+    void InitializeGrid(List<PlatformType>[,] grid)
+    {
+        for(int i = 0; i < rows; i++)
+        {
+            for(int j = 0; j < cols; j++)
+            {
+                grid[i, j] = new List<PlatformType> { PlatformType.UNSTABLE };
+            }
+        }
+    }
+
+    void ScuffedMakePathInPlatforms(List<PlatformType>[,] grid)
+    {
+        int start_platform_col = Random.Range(0, cols - 1);
+        grid[0, start_platform_col][0] = PlatformType.STABLE;
+
+        for(int i = 1; i < rows; i++)
+        {
+            int col_to_be_stable = -1;
+            bool stop_searching = false;
+            while(!stop_searching)
+            {
+                col_to_be_stable = Random.Range(0, cols - 1);
+                if (col_to_be_stable - 1 > -1 && col_to_be_stable + 1 < cols)
+                {
+                    if (grid[i - 1, col_to_be_stable - 1][0] == PlatformType.STABLE ||
+                        grid[i - 1, col_to_be_stable + 1][0] == PlatformType.STABLE)
+                    {
+                        stop_searching = true;
+                    }
+                }
+                else if (grid[i - 1, col_to_be_stable][0] == PlatformType.STABLE)
+                {
+                    stop_searching = true;
+                }
+            }
+            grid[i, col_to_be_stable][0] = PlatformType.STABLE;
+        }
     }
 
     void MakePathInPlatforms(List<PlatformType>[,] grid)
@@ -80,7 +173,6 @@ public class BossLevelOne : MonoBehaviour
         int start_platform_int = find_stable_platform_in_row(0, grid);
         //Randomly select goal platform
         int goal_platform_int = find_stable_platform_in_row(rows - 1, grid);
-        Debug.Log("goal: " + goal_platform_int);
         //Get the coordinate representation of the start platform on the grid
         int[] start_platform_coords = int_to_grid(start_platform_int);
         int start_platform_row = start_platform_coords[0];
@@ -160,6 +252,11 @@ public class BossLevelOne : MonoBehaviour
                             distances[v] = d;
                             parents[v] = u;
                         }
+
+                        if (v == goal_platform_int) {
+                            priority_list.Clear();
+                            break;
+                        }
                         
                         //Update priority of v
                         int index_of_v = priority_list.FindIndex(distance_and_val => distance_and_val[1] == v);
@@ -198,7 +295,7 @@ public class BossLevelOne : MonoBehaviour
     //Helper method to convert grid positions to integers
     int[] int_to_grid(int num)
     {
-        int quotient = num / rows;
+        int quotient = num / cols;
         int remainder = num % cols;
         return new int[] { quotient, remainder };
     }
@@ -214,7 +311,6 @@ public class BossLevelOne : MonoBehaviour
 
         if (u != v)
         {
-            Debug.Log(v);
             delete_walls(u, parents[v], parents, grid);
             int[] v_coords = int_to_grid(v);
             if (grid[v_coords[0], v_coords[1]][0] == PlatformType.UNSTABLE)
@@ -367,6 +463,12 @@ public class BossLevelOne : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (timer > 0.0f)
+        {
+            timer -= Time.deltaTime;
+            timer_text.text = string.Format("{0}", Mathf.FloorToInt(timer));
+        }
+        else
+            cutscene_being_shown = false;
     }
 }
