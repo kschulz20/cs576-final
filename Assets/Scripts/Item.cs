@@ -48,8 +48,12 @@ public class Item : MonoBehaviour
         {
             if(entry.Value)
             {
-                show_interact_button = true;
                 near_object = entry.Key;
+                if(!exp_manager.prof_talked_to.Contains(near_object))
+                {
+                    Debug.Log(exp_manager.prof_talked_to.Count);
+                    show_interact_button = true;
+                }
             }
         }
         if(show_interact_button)
@@ -66,7 +70,14 @@ public class Item : MonoBehaviour
                 {
                     if (go.name == near_object)
                     {
-                        go.SetActive(false);
+                        if(go.tag == "Professor")
+                        {
+                            exp_manager.prof_talked_to.Add(near_object);
+                        }
+                        else
+                        {
+                            go.SetActive(false);
+                        }
                     }
                 }
                 is_near[near_object] = false;
@@ -76,6 +87,14 @@ public class Item : MonoBehaviour
         else
         {
             exp_manager.interact_box.SetActive(false);
+        }
+
+        if(gameObject.tag == "Professor")
+        {
+            Vector3 targetPostition = new Vector3(player.transform.position.x,
+                                        this.transform.position.y,
+                                        player.transform.position.z);
+            this.transform.LookAt(targetPostition);
         }
     }
 
@@ -101,14 +120,14 @@ public class Item : MonoBehaviour
     {
         string new_checklist_text = "";
         int rank = 1;
-        if(exp_manager.needed_items.Count <= 3)
+        if(exp_manager.needed_items.Count <= 5)
         {
             exp_manager.checklist_page = 1;
             exp_manager.checklist_left_button.SetActive(false);
             exp_manager.checklist_right_button.SetActive(false);
         }
         int page = exp_manager.checklist_page;
-        for (int i = page * 3 - 3; i <= page * 3 - 1; i++)
+        for (int i = page * 5 - 5; i <= page * 5 - 1; i++)
         {
             if (i >= 0 && i < exp_manager.needed_items.Count)
             {
@@ -123,13 +142,13 @@ public class Item : MonoBehaviour
     {
         string new_notebook_text = "";
         int page = exp_manager.notebook_page;
-        int counter = page * 3 - 2;
-        if (exp_manager.notebook_notes.Count > 3 && page == 1)
+        int counter = page * 5 - 4;
+        if (exp_manager.notebook_notes.Count > 5 && page == 1)
         {
             exp_manager.notebook_left_button.SetActive(false);
             exp_manager.notebook_right_button.SetActive(true);
         }
-        for (int i = page * 3 - 3; i <= page * 3 - 1; i++)
+        for (int i = page * 5 - 5; i <= page * 5 - 1; i++)
         {
             if (i >= 0 && i < exp_manager.notebook_notes.Count)
             {

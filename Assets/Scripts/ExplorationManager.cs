@@ -22,47 +22,62 @@ public class ExplorationManager : MonoBehaviour
     public GameObject interact_box;
     public GameObject timer_text;
     public GameObject gameover_text;
+    public Material maze_material;
 
     public GameObject phone_1;
     public GameObject briefcase;
     public GameObject paper_1;
-    public GameObject laptop;
+    public GameObject laptop_1;
     public GameObject prof_1;
     public GameObject paper_2;
     public GameObject maze_item;
+    public GameObject tablet;
+    public GameObject textbook;
+    public GameObject prof_2;
 
     internal int checklist_page = 1;
     internal int notebook_page = 1;
-    internal List<string> needed_items = new List<string> { "Cellphone", "Briefcase", "Paper 1", "Laptop", "Talk to Professor Baime Pavila", "Paper 2" };      //Items needed for collection still
+    internal List<string> needed_items = new List<string> { "Cellphone", "Briefcase", "Paper 1", "Laptop 1", "Talk to Professor Baime Pavila", "Paper 2", "Tablet", "Textbook", "Talk to Professor Maniel Bheldon", "Laptop 2"};      //Items needed for collection still
     internal List<string> notebook_notes = new List<string>();     //Collected items so far
+    internal List<string> prof_talked_to = new List<string>();
     internal Dictionary<string, string> stage_one_item_to_info = new Dictionary<string, string>();     //Maps item name to corresponding info item gives for stage 1
     internal Dictionary<string, string> stage_one_item_to_descrip = new Dictionary<string, string>();      //Maps item name to corresponding item description for stage 1
-    internal Dictionary<string, string> stage_two_item_to_info = new Dictionary<string, string>();     //Maps item name to corresponding info item gives for stage 2
-    internal Dictionary<string, string> stage_two_item_to_descrip = new Dictionary<string, string>();      //Maps item name to corresponding item description for stage 2
     internal Dictionary<string, bool> stage_one_item_near = new Dictionary<string, bool>();     //Keep track if player is near stage 1 items
 
-    private int stage = 0;      //Stage identifier
     private float timer = 5.0f;     //Timer to indicate when exploration stage will end
-    private List<string> stage_one_items = new List<string> { "Cellphone", "Briefcase", "Paper 1", "Laptop", "Talk to Professor Baime Pavila", "Paper 2" };      //Required items for stage 1
-    private List<string> stage_two_items = new List<string> { "Tablet", "Pen", "Textbook 1", "Talk to Professor Maniel Bheldon", "Laptop", "Textbook 2" };      //Required items for stage 2
-    private List<string> stage_one_info = new List<string> { "Variables are used to store info in computer programs", "In Java, variables can be type integer (int)", "In Java, variables can be alphabetical characters (String)", "Variables can be updated and reassigned", "To add to an integer variable, do int variable += addedNum", "To print out a String in Java with a newline, do System.out.println(printedString);" };
-    private List<string> stage_one_descrip = new List<string> { "Professor Rawrrington's cellphone. It contains some insights on what will be on the exam", 
-                                                                "This briefcase contains documents inscribed with some info about Java variables", 
-                                                                "The paper is a research article about Java String variables. Definitely useful for the test!", 
-                                                                "Professor Rawrrington's laptop that contains notes about the upcoming exam.", 
-                                                                "Why hello there. Are you prepared for the upcoming CS121 exam? I taught the class before, just remember how to do operations with variables and you will do great! :)",
-                                                                "A highly scientific paper about printing Strings in Java. This will be beyond useful to ace the test." };
+    private List<string> stage_one_items = new List<string> { "Cellphone", "Briefcase", "Paper 1", "Laptop 1", "Talk to Professor Baime Pavila", "Paper 2", "Tablet", "Textbook", "Talk to Professor Maniel Bheldon", "Laptop 2" };      //Required items for stage 1
+    private List<string> stage_one_info = new List<string> { "Variables are used to store info in computer programs",
+                                                             "In Java, variables can be type integer (int)",
+                                                             "In Java, variables can be alphabetical characters (String)",
+                                                             "Variables can be updated and reassigned",
+                                                             "To add to an integer variable, do int variable += addedNum",
+                                                             "To print out a String in Java with a newline, do System.out.println(printedString);",
+                                                             "In the for loop for(int i = 0; i < X; i++), it will iterate only when i < X", 
+                                                             "for(int i = 0; i < X; i++), i will start at 0 first iteration and increment by 1 every next loop",
+                                                             "The code under if statement only execute if the condition is true, else the else statement executes",
+                                                             "For while loops while(X), it runs only when the X condition is true" };
+    private List<string> stage_one_descrip = new List<string> { "Professor Rawrrington's cellphone. It contains some insights on what will be on the exam",
+                                                                "This briefcase contains documents inscribed with some info about Java variables",
+                                                                "The paper is a research article about Java String variables. Definitely useful for the test!",
+                                                                "Professor Rawrrington's laptop that contains notes about the upcoming exam.",
+                                                                "Prof. Baime Pavila: Why hello there. Are you prepared for the upcoming CS121 exam? I taught the class before, just remember how to do operations with variables and you will do great! :)",
+                                                                "A highly scientific paper about printing Strings in Java. This will be beyond useful to ace the test.",
+                                                                "The tablet contains Professor Binea's notes on how for loops work. Looks complex and difficult.",
+                                                                "A textbook on how for loop iterations work. Highly technical.",
+                                                                "Prof. Maniel Bheldon: Have your CS121 exam soon? It will be easy as cake, especially if you understand how if else statements work! I can give you a brief overview right now! ;)",
+                                                                "Professor Mario's confidential laptop. It has instructions on how while loops work." };
+
     private List<float[]> item_pos;
     private GameObject[] door_blocks;
     private int width = 74;
     private int length = 73;
-    private int maze_width = 34;
-    private int maze_length = 37;
+    private int maze_width = 16;
+    private int maze_length = 16;
     private int maze_item_pos_x = -1;
     private int maze_item_pos_z = -1;
     private int entrance_1_x = 0;
-    private int entrance_1_z = 18;
-    private int entrance_2_x = 17;
+    private int entrance_1_z = 8;
+    private int entrance_2_x = 8;
     private int entrance_2_z = 0;
     private float storey_height = 10f;   // height of walls in maze
     private float first_floor_y = 1.0f;
@@ -104,8 +119,8 @@ public class ExplorationManager : MonoBehaviour
         timer_text.GetComponent<Text>().text = "Time Left: " + timer.ToString("0.0");
 
         string to_do_string = "";
-        int to_do_counter = checklist_page * 3 - 2;
-        for (int i = checklist_page * 3 - 3; i <= checklist_page * 3 - 1; i++)
+        int to_do_counter = checklist_page * 5 - 4;
+        for (int i = checklist_page * 5 - 5; i <= checklist_page * 5 - 1; i++)
         {
             if (i >= 0 && i < needed_items.Count)
             {
@@ -133,7 +148,7 @@ public class ExplorationManager : MonoBehaviour
         {
             for (int i = 0; i < stage_one_items.Count; i++)
             {
-                while (true) // try until virus placement is successful (unlikely that there will no places)
+                while (true)
                 {
                     // try a random location in the grid
                     int wr = Random.Range(0, width);
@@ -166,8 +181,9 @@ public class ExplorationManager : MonoBehaviour
                 item_pos = new List<float[]>();
             }
         }
-        List<GameObject> items = new List<GameObject>() { phone_1, briefcase, paper_1, laptop, prof_1, paper_2 };
-        for(int i = 0; i < item_pos.Count; i++)
+
+        List<GameObject> items = new List<GameObject>() { phone_1, briefcase, paper_1, laptop_1, prof_1, paper_2, tablet, textbook, prof_2 };
+        for(int i = 0; i < items.Count; i++)
         {
             items[i].transform.position = new Vector3(item_pos[i][0] - 7.0f, item_pos[i][1], item_pos[i][2] - 16.0f);
         }
@@ -207,7 +223,7 @@ public class ExplorationManager : MonoBehaviour
                 grid = new List<TileType>[maze_width, maze_length];
                 function_calls++;
             }
-            if(!success && function_calls > 50) //bug testing
+            if(!success && function_calls > 1000) //bug testing
             {
                 Debug.Log("NO SOLUTION");
                 break;
@@ -382,6 +398,32 @@ public class ExplorationManager : MonoBehaviour
             return false;
     }
 
+    // must return true if there are three (or more) interior consecutive wall blocks either horizontally or vertically
+    // by interior, we mean walls that do not belong to the perimeter of the grid
+    // e.g., a grid configuration: "FLOOR - WALL - WALL - WALL - FLOOR" is not valid
+    bool TooLongWall(List<TileType>[,] grid)
+    {
+        /*** implement the rest ! */
+        for (int w = 1; w < maze_width - 1; w++)
+        {
+            for (int l = 1; l < maze_length - 1; l++)
+            {
+                if (grid[w, l][0] == TileType.WALL)
+                {
+                    if (w + 3 < maze_width - 1 && grid[w + 1, l][0] == TileType.WALL && grid[w + 2, l][0] == TileType.WALL && grid[w + 3, l][0] == TileType.WALL)
+                    {
+                        return true;
+                    }
+                    if (l + 3 < maze_length - 1 && grid[w, l + 1][0] == TileType.WALL && grid[w, l + 2][0] == TileType.WALL && grid[w, l + 3][0] == TileType.WALL)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     // check if attempted assignment is consistent with the constraints or not
     bool CheckConsistency(List<TileType>[,] grid, int[] cell_pos, TileType t)
     {
@@ -436,10 +478,6 @@ public class ExplorationManager : MonoBehaviour
     void GetPathToItem(List<TileType>[,] solution, int entrance_x, int entrance_z)
     {
         bool contains_path = false;
-        Debug.Log(maze_width);
-        Debug.Log(maze_length);
-        Debug.Log(entrance_x);
-        Debug.Log(entrance_z);
         int[,] g_vals = new int[maze_width, maze_length];
         for (int i = 0; i < maze_width; i++)
         {
@@ -459,7 +497,7 @@ public class ExplorationManager : MonoBehaviour
         int[,,] came_from = new int[maze_width, maze_length, 2];
         g_vals[entrance_x, entrance_z] = 0;
         f_vals[entrance_x, entrance_z] = Mathf.Abs(entrance_x - maze_item_pos_x) + Mathf.Abs(entrance_z - maze_item_pos_z);
-        int[] source = new int[2] { maze_item_pos_x, maze_item_pos_z };
+        int[] source = new int[2] { entrance_x, entrance_z };
         List<int[]> priority_queue = new List<int[]> { source };
         while (priority_queue.Count > 0)
         {
@@ -584,10 +622,10 @@ public class ExplorationManager : MonoBehaviour
                 wr = Random.Range(1, maze_width - 1);
                 lr = Random.Range(1, maze_length - 1);
 
-                if (solution[wr, lr][0] == TileType.FLOOR && (-1.088 * wr + maze_length) < lr)
+                if (solution[wr, lr][0] == TileType.FLOOR && (-1 * wr + maze_length) < lr)
                 {
-                    float x = (float)wr + 33.0f;
-                    float z = (float)lr + 22.0f;
+                    float x = (float)(wr * 2) + 33.0f;
+                    float z = (float)(lr * 2) + 22.0f;
                     maze_item.transform.position = new Vector3(x, storey_height, z);
                     break;
                 }
@@ -619,11 +657,11 @@ public class ExplorationManager : MonoBehaviour
                 {
                     GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     cube.name = "WALL";
-                    float wall_x = (float)x + 33.0f;
-                    float wall_z = (float)z + 22.0f;
+                    float wall_x = (float)(x*2) + 33.0f;
+                    float wall_z = (float)(z*2) + 22.0f;
                     cube.transform.position = new Vector3(wall_x, 0, wall_z);
-                    cube.transform.localScale = new Vector3(1, storey_height, 1);
-                    cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                    cube.transform.localScale = new Vector3(2, storey_height, 2);
+                    cube.GetComponent<Renderer>().material = maze_material;
                 }
             }
         }

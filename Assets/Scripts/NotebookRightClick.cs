@@ -37,8 +37,8 @@ public class NotebookRightClick : MonoBehaviour, IPointerClickHandler
         notebook_right_button.SetActive(false);
         notebook_left_button.SetActive(true);
         string new_notebook_text = "";
-        int counter = notebook_page * 3 - 2;
-        for (int i = notebook_page * 3 - 3; i <= notebook_page * 3 - 1; i++)
+        int counter = notebook_page * 5 - 4;
+        for (int i = notebook_page * 5 - 5; i <= notebook_page * 5 - 1; i++)
         {
             if (i >= 0 && i < notebook_notes.Count)
             {

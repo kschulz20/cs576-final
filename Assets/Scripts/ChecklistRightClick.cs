@@ -38,8 +38,8 @@ public class ChecklistRightClick : MonoBehaviour, IPointerClickHandler
         checklist_right_button.SetActive(false);
         checklist_left_button.SetActive(true);
         string to_do_string = "";
-        int to_do_counter = checklist_page * 3 - 2;
-        for (int i = checklist_page * 3 - 3; i <= checklist_page * 3 - 1; i++)
+        int to_do_counter = checklist_page * 5 - 4;
+        for (int i = checklist_page * 5 - 5; i <= checklist_page * 5 - 1; i++)
         {
             if (i >= 0 && i < needed_items.Count)
             {

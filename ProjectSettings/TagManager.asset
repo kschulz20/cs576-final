@@ -7,6 +7,7 @@ TagManager:
   - ExpManager
   - AJ
   - DoorwayBlock
+  - Professor
   layers:
   - Default
   - TransparentFX
