@@ -22,6 +22,8 @@ public class ExplorationManager : MonoBehaviour
     public GameObject interact_box;
     public GameObject timer_text;
     public GameObject gameover_text;
+    public GameObject scroll_bar;
+    public Button pause_button;
     public Material maze_material;
 
     public GameObject phone_1;
@@ -43,8 +45,10 @@ public class ExplorationManager : MonoBehaviour
     internal Dictionary<string, string> stage_one_item_to_info = new Dictionary<string, string>();     //Maps item name to corresponding info item gives for stage 1
     internal Dictionary<string, string> stage_one_item_to_descrip = new Dictionary<string, string>();      //Maps item name to corresponding item description for stage 1
     internal Dictionary<string, bool> stage_one_item_near = new Dictionary<string, bool>();     //Keep track if player is near stage 1 items
+    internal bool powerup_landed_on_player_recently = false;
+    internal float timestamp_powerup_landed = float.MaxValue;
 
-    private float timer = 5.0f;     //Timer to indicate when exploration stage will end
+    private float timer = 180.0f;     //Timer to indicate when exploration stage will end
     private List<string> stage_one_items = new List<string> { "Cellphone", "Briefcase", "Paper 1", "Laptop 1", "Talk to Professor Baime Pavila", "Paper 2", "Tablet", "Textbook", "Talk to Professor Maniel Bheldon", "Laptop 2" };      //Required items for stage 1
     private List<string> stage_one_info = new List<string> { "Variables are used to store info in computer programs",
                                                              "In Java, variables can be type integer (int)",
@@ -89,6 +93,11 @@ public class ExplorationManager : MonoBehaviour
     private float doorway_check_radius = 5.0f;
     private float radius_from_player = 10.0f;
     private List<TileType>[,] grid;
+    private float player_health = 1.0f;
+    private int num_powerup = 0;
+    private List<int[]> pos_powerup;
+    private AudioSource audio_source;
+    private bool is_paused = false;
 
     private bool won = false;
     private bool gameover = false;
@@ -117,6 +126,15 @@ public class ExplorationManager : MonoBehaviour
         interact_box.SetActive(false);
         checklist_right_button.SetActive(true);
         timer_text.GetComponent<Text>().text = "Time Left: " + timer.ToString("0.0");
+        num_powerup = 0;
+        player_health = 1.0f;
+        powerup_landed_on_player_recently = false;
+        timestamp_powerup_landed = float.MaxValue;
+        won = false;
+        gameover = false;
+        is_paused = false;
+
+        pause_button.onClick.AddListener(PauseButtonFunction);
 
         string to_do_string = "";
         int to_do_counter = checklist_page * 5 - 4;
@@ -254,12 +272,29 @@ public class ExplorationManager : MonoBehaviour
         }
         if(timer >= 0.0f && !gameover)
         {
-            timer -= Time.deltaTime;
-            timer_text.GetComponent<Text>().text = "Time Left: " + timer.ToString("0.0");
+            if(!is_paused) 
+            {
+                timer -= Time.deltaTime;
+                timer_text.GetComponent<Text>().text = "Time Left: " + timer.ToString("0.0");
+            }
         }
         else
         {
             gameover = true;
+        }
+
+        scroll_bar.GetComponent<Scrollbar>().size = player_health;
+        if (player_health < 0.5f)
+        {
+            ColorBlock cb = scroll_bar.GetComponent<Scrollbar>().colors;
+            cb.disabledColor = new Color(1.0f, 0.0f, 0.0f);
+            scroll_bar.GetComponent<Scrollbar>().colors = cb;
+        }
+        else
+        {
+            ColorBlock cb = scroll_bar.GetComponent<Scrollbar>().colors;
+            cb.disabledColor = new Color(0.0f, 1.0f, 0.25f);
+            scroll_bar.GetComponent<Scrollbar>().colors = cb;
         }
     }
 
@@ -667,6 +702,29 @@ public class ExplorationManager : MonoBehaviour
         }
     }
 
+    void PauseGame()
+    {
+        is_paused = true;
+        Time.timeScale = 0;
+    }
+
+    void ResumeGame()
+    {
+        is_paused = false;
+        Time.timeScale = 1;
+    }
+
+    void PauseButtonFunction()
+    {
+        if (!is_paused)
+        {
+            PauseGame();
+        }
+        else
+        {
+            ResumeGame();
+        }
+    }
 
     internal void UpdateCheckListPage(int new_page)
     {
