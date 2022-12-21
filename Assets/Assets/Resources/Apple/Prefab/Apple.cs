@@ -39,21 +39,11 @@ public class Apple : MonoBehaviour
         // (b) if the object collides with another apple, or its own turret that launched it (birth_turret), don't do anything
         // (c) if the object collides with anything else (e.g., terrain, a different turret), destroy the apple
         ////////////////////////////////////////////////
-        // if (other.gameObject.name == "Claire")
-        // {
-        //     if (claire.GetComponent<Claire>().num_lives > 0)
-        //         claire.GetComponent<Claire>().num_lives--;
-
-        //     Destroy(transform.gameObject);
-        // }
-        // else if (other.gameObject.name != birth_turret.name && other.gameObject.name != transform.name)
-        // {
-        //     Destroy(transform.gameObject);
-        // }
         if (other.gameObject.name == "Aj")
         {
             //Play sfx for when apple hits the player
             level.audio_source.PlayOneShot(level.apple_hit_sfx);
+            level.player_lives--;
             Destroy(transform.gameObject);
         }
         else if (birth_turret != null)

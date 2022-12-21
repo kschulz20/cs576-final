@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TeleportButton : MonoBehaviour
 {
@@ -16,8 +17,7 @@ public class TeleportButton : MonoBehaviour
             level.audio_source.PlayOneShot(level.teleport_sfx, 0.7f);
             //Move player to the respawn point
             player.GetComponent<CharacterController>().enabled = false;
-            player.transform.position = respawn_point.transform.position;
-            player.GetComponent<CharacterController>().enabled = true;
+            SceneManager.LoadScene("TestQuestionScene");
         }
     }
 }

@@ -11,6 +11,7 @@ public class Respawn : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
+            level.player_lives--;
             level.audio_source.PlayOneShot(level.lava_sizzle_sfx);
             player.GetComponent<CharacterController>().enabled = false;
             player.transform.position = respawn_point.transform.position;

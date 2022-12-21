@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 enum TileType
 {
@@ -21,8 +22,6 @@ public class ExplorationManager : MonoBehaviour
     public GameObject dialogue_text;
     public GameObject interact_box;
     public GameObject timer_text;
-    public GameObject gameover_text;
-    public GameObject scroll_bar;
     public Button pause_button;
     public Material maze_material;
 
@@ -119,7 +118,6 @@ public class ExplorationManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameover_text.SetActive(false);
         notebook_left_button.SetActive(false);
         notebook_right_button.SetActive(false);
         checklist_left_button.SetActive(false);
@@ -258,17 +256,12 @@ public class ExplorationManager : MonoBehaviour
         {
             if (needed_items.Count == 0)
             {
-                won = true;
-            }
-            if (won)
-            {
-                gameover_text.GetComponent<Text>().text = "You won!";
+                SceneManager.LoadScene("SampleScene");
             }
             else
             {
-                gameover_text.GetComponent<Text>().text = "You lost!";
+                SceneManager.LoadScene("FinishLose");
             }
-            gameover_text.SetActive(true);
         }
         if(timer >= 0.0f && !gameover)
         {
@@ -281,20 +274,6 @@ public class ExplorationManager : MonoBehaviour
         else
         {
             gameover = true;
-        }
-
-        scroll_bar.GetComponent<Scrollbar>().size = player_health;
-        if (player_health < 0.5f)
-        {
-            ColorBlock cb = scroll_bar.GetComponent<Scrollbar>().colors;
-            cb.disabledColor = new Color(1.0f, 0.0f, 0.0f);
-            scroll_bar.GetComponent<Scrollbar>().colors = cb;
-        }
-        else
-        {
-            ColorBlock cb = scroll_bar.GetComponent<Scrollbar>().colors;
-            cb.disabledColor = new Color(0.0f, 1.0f, 0.25f);
-            scroll_bar.GetComponent<Scrollbar>().colors = cb;
         }
     }
 

@@ -8,6 +8,9 @@ TagManager:
   - AJ
   - DoorwayBlock
   - Professor
+  - CinemachineTarget
+  - BossLevelOne
+  - GameManager
   layers:
   - Default
   - TransparentFX

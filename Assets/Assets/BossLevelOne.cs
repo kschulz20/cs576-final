@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 enum PlatformType
 {
@@ -38,6 +39,9 @@ public class BossLevelOne : MonoBehaviour
     public AudioClip turret_death_sfx;
     public AudioClip lava_sizzle_sfx;
     public RenderPipelineAsset urp;
+    public int player_lives = 5;
+    public Text num_lives_text;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -56,10 +60,20 @@ public class BossLevelOne : MonoBehaviour
         List<int[]> unassigned = new List<int[]>();
 
         //Timer stuff
-        seconds_for_platform_memorization = 5;
+        seconds_for_platform_memorization = 1;
         //Set the timer on the platform canvas to have the amount of seconds set here
         timer_text.text = string.Format("{0}", seconds_for_platform_memorization);
         timer = seconds_for_platform_memorization;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
+        {
+            Debug.LogError("Internal error: could not find the player object - did you remove its 'AJ' tag?");
+            return;
+        }
+        AJ player_script = player.GetComponent<AJ>();
+        player_script.walking_velocity = 9.0f;
+        player_script.jump_height = 90.0f;
 
         cutscene_being_shown = true;
         music_already_played = false;
@@ -350,7 +364,7 @@ public class BossLevelOne : MonoBehaviour
         //Base case
         if (unassigned.Count == 0)
             return true;
-        
+
         //Randomly select unassigned platform
         int[] unassigned_platform = unassigned[Random.Range(0, unassigned.Count - 1)];
         int row = unassigned_platform[0];
@@ -482,6 +496,11 @@ public class BossLevelOne : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(player_lives == 0)
+        {
+            SceneManager.LoadScene("FinishLose");
+        }
+        num_lives_text.text = string.Format("Lives: {0}", player_lives);
         //Update timer displayed on platform canvas
         if (timer > 0.0f)
         {
