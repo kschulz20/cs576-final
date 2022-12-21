@@ -26,13 +26,16 @@ public class BossLevelOne : MonoBehaviour
     private float timer;
     //To keep track if the player is memorizing the platforms - used by Turret.cs to know when to start firing the turret
     public bool cutscene_being_shown;
+    private bool music_already_played;
     public AudioSource audio_source;
+    public AudioSource boss_audio_source;
     public AudioSource lava_audio_source;
     public AudioClip apple_shoot_sfx;
     public AudioClip apple_hit_sfx;
     public AudioClip platform_fall_sfx;
     public AudioClip teleport_sfx;
     public AudioClip turret_death_sfx;
+    public AudioClip lava_sizzle_sfx;
     // Start is called before the first frame update
     void Start()
     {
@@ -50,12 +53,13 @@ public class BossLevelOne : MonoBehaviour
         List<int[]> unassigned = new List<int[]>();
 
         //Timer stuff
-        seconds_for_platform_memorization = 1;
+        seconds_for_platform_memorization = 5;
         //Set the timer on the platform canvas to have the amount of seconds set here
         timer_text.text = string.Format("{0}", seconds_for_platform_memorization);
         timer = seconds_for_platform_memorization;
 
         cutscene_being_shown = true;
+        music_already_played = false;
 
         // bool success = false;
         // while(!success)
@@ -89,19 +93,19 @@ public class BossLevelOne : MonoBehaviour
         ScuffedMakePathInPlatforms(grid);
         DisableScriptsOnStablePlatforms(grid);
 
-        for(int i = 0; i < rows; i++)
-        {
-            string print = "";
-            print += i + ":  ";
-            for(int j = 0; j < cols; j++)
-            {
-                if (grid[i,j][0] == PlatformType.STABLE)
-                    print += "S  ";
-                else
-                    print += "U  ";
-            }
-            Debug.Log(print);
-        }
+        // for(int i = 0; i < rows; i++)
+        // {
+        //     string print = "";
+        //     print += i + ":  ";
+        //     for(int j = 0; j < cols; j++)
+        //     {
+        //         if (grid[i,j][0] == PlatformType.STABLE)
+        //             print += "S  ";
+        //         else
+        //             print += "U  ";
+        //     }
+        //     Debug.Log(print);
+        // }
 
         lava_audio_source.Play();
 
@@ -482,8 +486,16 @@ public class BossLevelOne : MonoBehaviour
             timer_text.text = string.Format("{0}", Mathf.FloorToInt(timer));
         }
         else
+        {
+            if (!music_already_played)
+            {
+                boss_audio_source.Play();
+                music_already_played = true;
+            }
             cutscene_being_shown = false;
+        }
 
         lava_audio_source.loop = true;
+        boss_audio_source.loop = true;
     }
 }

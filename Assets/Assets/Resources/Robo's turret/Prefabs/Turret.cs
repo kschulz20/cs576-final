@@ -55,7 +55,7 @@ public class Turret : MonoBehaviour
 
         RaycastHit hit;
         
-        //Only fire turret if the player is not memorizing the platforms
+        //Only aim turret if the player is not memorizing the platforms
         if (!level.cutscene_being_shown)
         {
             if (Physics.Raycast(turret_centroid, direction_from_turret_to_aj, out hit, Mathf.Infinity))
@@ -80,8 +80,9 @@ public class Turret : MonoBehaviour
     private IEnumerator Spawn()
     {
         while (true)
-        {            
-            if (aj_is_accessible)
+        {           
+            //Only fire turret if the player is not memorizing the platforms
+            if (aj_is_accessible && !level.cutscene_being_shown)
             {
                 GameObject new_object = Instantiate(projectile_template, projectile_starting_pos, Quaternion.identity);
                 Apple apple_component = new_object.GetComponent<Apple>();
@@ -91,7 +92,8 @@ public class Turret : MonoBehaviour
                 apple_component.birth_turret = transform.gameObject;
             }
             yield return new WaitForSeconds(shooting_delay); // next shot will be shot after this delay
-            audio_source.PlayOneShot(apple_shoot_sfx);
+            if (!level.cutscene_being_shown)
+                audio_source.PlayOneShot(apple_shoot_sfx);
         }
     }
 
