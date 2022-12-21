@@ -35,10 +35,6 @@ public class Door : MonoBehaviour
         if (Vector3.Distance(transform.position, player.transform.position) <= radius_notify_player)
         {
             exp_manager.interact_box.SetActive(true);
-            if (Input.GetKey(KeyCode.E))
-            {
-                SceneManager.LoadScene("SampleScene");
-            }
         }
         bool show_interact_button = false;
         string near_object = "";

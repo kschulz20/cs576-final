@@ -38,7 +38,7 @@ public class PlatformFall : MonoBehaviour
             GetComponent<Renderer>().material.color = Color.Lerp(GetComponent<Renderer>().material.color, Color.red, time_since_jumped_on / duration);
         }
 
-        if (time_since_jumped_on > 0.5f)
+        if (time_since_jumped_on > 0.10f)
         {
             if (!platform_fall_sfx_played)
             {

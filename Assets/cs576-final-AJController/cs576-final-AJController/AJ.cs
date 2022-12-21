@@ -16,33 +16,45 @@ public class AJ : MonoBehaviour
     public float time_of_death;
     public GameObject panel;
     public Text state;
-    public float jump_height = 0;
     private float jump = 0f;
     private bool flag;
     public float gravity = 20.0f;
+    public bool in_lava_stage;
+    private float lava_walking_velocity;
+    private float lava_jump_height;
+    private float lava_rotation_speed;
     // Start is called before the first frame update
     void Start()
     {
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
         movement_direction = new Vector3(0.0f, 0.0f, 0.0f);
-        walking_velocity = 1.5f;
+        walking_velocity = 3.0f;
         velocity = 0.0f;
         num_lives = 5;
         has_won = false;
-        jump_height = 15.0f;
+        in_lava_stage = false;
+
+        lava_walking_velocity = 8.0f;
+        lava_jump_height = 22.0f;
+        lava_rotation_speed = 0.4f;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (in_lava_stage)
+            walking_velocity = lava_walking_velocity;
         //flag = true;
         flag = character_controller.isGrounded;
         //jump = 0f;
         if (Input.GetKey(KeyCode.UpArrow))
         {
-
-            velocity += 0.01f;
+            
+            if (in_lava_stage)
+                velocity += 1.0f;
+            else
+                velocity += 0.03f;
 
             if (Input.GetKey(KeyCode.Space))
             {
@@ -50,7 +62,12 @@ public class AJ : MonoBehaviour
                     velocity = walking_velocity;
                 //animation_controller.SetBool("jumping", true);
                 if (flag)
-                    jump = jump_height;
+                {
+                    if (in_lava_stage)
+                        jump = lava_jump_height;
+                    else
+                        jump = 15.0f;
+                }
                 //transform.position.y += 12f;
                 //transform.position = new Vector3(transform.position.x, transform.position.y + 12f, transform.position.z);
             }
@@ -78,7 +95,7 @@ public class AJ : MonoBehaviour
         {
 
             {
-                velocity -= 0.01f;
+                velocity -= 0.03f;
                 if (velocity < -1 * walking_velocity / 1.5f)
                     velocity = -1 * walking_velocity / 1.5f;
                 animation_controller.SetBool("back", true);
@@ -90,7 +107,13 @@ public class AJ : MonoBehaviour
         {
             //animation_controller.SetBool("jumping", true);
             if (flag)
-                jump = jump_height;
+            {  
+                if (in_lava_stage)
+                    jump = lava_jump_height;
+                else
+                    jump = 15.0f;
+            }   
+                
         }
         else
         {
@@ -110,11 +133,17 @@ public class AJ : MonoBehaviour
 
         if (Input.GetKey(KeyCode.LeftArrow) && !animation_controller.GetCurrentAnimatorStateInfo(0).IsName("jumping"))
         {
-            transform.Rotate(new Vector3(0.0f, -0.5f, 0.0f));
+            float left_rotation_speed = -0.8f;
+            if (in_lava_stage)
+                left_rotation_speed = -lava_rotation_speed;
+            transform.Rotate(new Vector3(0.0f, left_rotation_speed, 0.0f));
         }
         else if (Input.GetKey(KeyCode.RightArrow) && !animation_controller.GetCurrentAnimatorStateInfo(0).IsName("jumping"))
         {
-            transform.Rotate(new Vector3(0.0f, 0.5f, 0.0f));
+            float right_rotation_speed = 0.8f;
+            if (in_lava_stage)
+                right_rotation_speed = lava_rotation_speed;
+            transform.Rotate(new Vector3(0.0f, right_rotation_speed, 0.0f));
         }
         transform.position = new Vector3(transform.position.x, 0.0f, transform.position.z + velocity * Time.deltaTime);
         //Debug.Log(jump);

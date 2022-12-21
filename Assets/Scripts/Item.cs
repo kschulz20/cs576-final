@@ -76,6 +76,7 @@ public class Item : MonoBehaviour
                         }
                         else
                         {
+                            exp_manager.audio_source.PlayOneShot(exp_manager.item_pickup_sfx);
                             go.SetActive(false);
                         }
                     }

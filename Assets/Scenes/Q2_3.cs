@@ -15,11 +15,11 @@ public class Q2_3 : MonoBehaviour
     public void submit()
     {
 
-
+        bool flag = true;
         if (ans.text == correctAns)
         {
             correctOrWrong.text = "Correct!";
-            manager.correct[4] = true;
+            manager.correct[5] = true;
         }
         else
         {
@@ -29,12 +29,15 @@ public class Q2_3 : MonoBehaviour
         ans.readOnly = true;
         for(int i = 0; i < 6; i++)
         {
+            Debug.Log(manager.correct[i]);
             if(!manager.correct[i])
             {
+                flag = false;
                 SceneManager.LoadScene("FinishLose");
             }
         }
-        SceneManager.LoadScene("FinishWIn");
+        if (flag)
+            SceneManager.LoadScene("FinishWin");
     }
     // Start is called before the first frame update
     void Start()

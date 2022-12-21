@@ -41,6 +41,7 @@ public class BossLevelOne : MonoBehaviour
     public RenderPipelineAsset urp;
     public int player_lives = 5;
     public Text num_lives_text;
+    public AJ aj_script;
 
     // Start is called before the first frame update
     void Start()
@@ -60,7 +61,7 @@ public class BossLevelOne : MonoBehaviour
         List<int[]> unassigned = new List<int[]>();
 
         //Timer stuff
-        seconds_for_platform_memorization = 1;
+        seconds_for_platform_memorization = 8;
         //Set the timer on the platform canvas to have the amount of seconds set here
         timer_text.text = string.Format("{0}", seconds_for_platform_memorization);
         timer = seconds_for_platform_memorization;
@@ -71,9 +72,7 @@ public class BossLevelOne : MonoBehaviour
             Debug.LogError("Internal error: could not find the player object - did you remove its 'AJ' tag?");
             return;
         }
-        AJ player_script = player.GetComponent<AJ>();
-        player_script.walking_velocity = 9.0f;
-        player_script.jump_height = 90.0f;
+        aj_script = player.GetComponent<AJ>();
 
         cutscene_being_shown = true;
         music_already_played = false;
@@ -509,6 +508,7 @@ public class BossLevelOne : MonoBehaviour
         }
         else
         {
+            aj_script.in_lava_stage = true;
             if (!music_already_played)
             {
                 boss_audio_source.Play();

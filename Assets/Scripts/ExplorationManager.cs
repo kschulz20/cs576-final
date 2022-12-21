@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering;
 
 enum TileType
 {
@@ -47,7 +48,7 @@ public class ExplorationManager : MonoBehaviour
     internal bool powerup_landed_on_player_recently = false;
     internal float timestamp_powerup_landed = float.MaxValue;
 
-    private float timer = 180.0f;     //Timer to indicate when exploration stage will end
+    private float timer = 300.0f;     //Timer to indicate when exploration stage will end
     private List<string> stage_one_items = new List<string> { "Cellphone", "Briefcase", "Paper 1", "Laptop 1", "Talk to Professor Baime Pavila", "Paper 2", "Tablet", "Textbook", "Talk to Professor Maniel Bheldon", "Laptop 2" };      //Required items for stage 1
     private List<string> stage_one_info = new List<string> { "Variables are used to store info in computer programs",
                                                              "In Java, variables can be type integer (int)",
@@ -95,11 +96,15 @@ public class ExplorationManager : MonoBehaviour
     private float player_health = 1.0f;
     private int num_powerup = 0;
     private List<int[]> pos_powerup;
-    private AudioSource audio_source;
+    public AudioSource audio_source;
+    public AudioClip item_pickup_sfx;
     private bool is_paused = false;
 
     private bool won = false;
     private bool gameover = false;
+    public RenderPipelineAsset render_pipeline;
+    public TerrainData exploration_stage_terrain;
+    public Material terrain_material;
 
     // a helper function that randomly shuffles the elements of a list (useful to randomize the solution to the CSP)
     private void Shuffle<T>(ref List<T> list)
@@ -118,6 +123,10 @@ public class ExplorationManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameObject.GetComponent<Terrain>().materialTemplate = terrain_material;
+        gameObject.GetComponent<TerrainCollider>().terrainData = exploration_stage_terrain;
+        GraphicsSettings.renderPipelineAsset = render_pipeline;
+        audio_source.Play();
         notebook_left_button.SetActive(false);
         notebook_right_button.SetActive(false);
         checklist_left_button.SetActive(false);
@@ -251,6 +260,7 @@ public class ExplorationManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        audio_source.loop = true;
         //check win/lose condition
         if(gameover)
         {
