@@ -17532,6 +17532,7 @@ MonoBehaviour:
   teleport_sfx: {fileID: 8300000, guid: 50f28506bfb69f24eab869250351b899, type: 3}
   turret_death_sfx: {fileID: 8300000, guid: 200b01cb5517353469ed2c5166da2581, type: 3}
   lava_sizzle_sfx: {fileID: 8300000, guid: 8723bdf5148b55040a6867775cf6b894, type: 3}
+  urp: {fileID: 11400000, guid: 253e760515ed5cd4a939de7eb0f208fc, type: 2}
 --- !u!82 &589812618
 AudioSource:
   m_ObjectHideFlags: 0
@@ -20675,7 +20676,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 687344902}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 159.7, y: -0, z: -43}
+  m_LocalPosition: {x: 160, y: -0, z: -43}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -27036,11 +27037,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
-  m_Name: pb_Mesh423304
-=======
   m_Name: pb_Mesh32570
->>>>>>> main
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -27959,7 +27956,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c289f389304322348bef39d9584dccb2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -14.8
+      value: -58.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c289f389304322348bef39d9584dccb2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -27967,11 +27964,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c289f389304322348bef39d9584dccb2, type: 3}
       propertyPath: m_LocalPosition.z
-<<<<<<< HEAD
-      value: 529.1
-=======
       value: 9.7
->>>>>>> main
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c289f389304322348bef39d9584dccb2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -30057,11 +30050,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
-  m_Name: pb_Mesh423170
-=======
-  m_Name: pb_Mesh32434
->>>>>>> main
+  m_Name: pb_Mesh32338
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -56300,8 +56289,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c289f389304322348bef39d9584dccb2, type: 3}
   m_PrefabInstance: {fileID: 974031799}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
-=======
 --- !u!114 &2123997215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56323,7 +56310,6 @@ MonoBehaviour:
   time_of_death: 0
   panel: {fileID: 0}
   state: {fileID: 0}
->>>>>>> main
 --- !u!136 &2123997216
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -56356,24 +56342,3 @@ CharacterController:
   m_SkinWidth: 0.2
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &2123997218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2123997212}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d6dc60378b97de40b657b3bde57ed74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movement_direction: {x: 0, y: 0, z: 0}
-  walking_velocity: 0
-  text: {fileID: 0}
-  velocity: 0
-  num_lives: 0
-  has_won: 0
-  time_of_death: 0
-  panel: {fileID: 0}
-  state: {fileID: 0}

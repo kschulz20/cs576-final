@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 enum PlatformType
@@ -36,9 +37,11 @@ public class BossLevelOne : MonoBehaviour
     public AudioClip teleport_sfx;
     public AudioClip turret_death_sfx;
     public AudioClip lava_sizzle_sfx;
+    public RenderPipelineAsset urp;
     // Start is called before the first frame update
     void Start()
     {
+        GraphicsSettings.renderPipelineAsset = urp;
         //CSP stuff
         function_calls = 100000;
         //Dimensions of grid
