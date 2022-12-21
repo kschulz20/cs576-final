@@ -17,6 +17,8 @@ public class AJ : MonoBehaviour
     public GameObject panel;
     public Text state;
     private float jump = 0f;
+    private bool flag;
+    public float gravity = 20.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,18 +34,21 @@ public class AJ : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        jump = 0f;
+        //flag = true;
+        flag = character_controller.isGrounded;
+        //jump = 0f;
         if (Input.GetKey(KeyCode.UpArrow))
         {
 
             velocity += 0.01f;
             
-            if (Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl))
+            if (Input.GetKey(KeyCode.Space))
             {
                 if (velocity > walking_velocity)
                     velocity = walking_velocity;
                 //animation_controller.SetBool("jumping", true);
-                jump = 10f;
+                if(flag)
+                    jump = 15f;
                 //transform.position.y += 12f;
                 //transform.position = new Vector3(transform.position.x, transform.position.y + 12f, transform.position.z);
             }
@@ -51,9 +56,9 @@ public class AJ : MonoBehaviour
             {
                 if (velocity > walking_velocity * 3.0f)
                     velocity = walking_velocity * 3.0f;
-                //animation_controller.SetBool("running", true);
+                animation_controller.SetBool("running", true);
                 animation_controller.SetBool("jumping", false);
-                jump = 0.0f;
+                //jump = 0.0f;
             }
             else
             {
@@ -62,7 +67,7 @@ public class AJ : MonoBehaviour
                 animation_controller.SetBool("running", false);
                 animation_controller.SetBool("walking", true);
                 animation_controller.SetBool("jumping", false);
-                jump = 0.0f;
+                //jump = 0.0f;
             }
 
 
@@ -79,10 +84,11 @@ public class AJ : MonoBehaviour
             }
 
         }
-        else if (Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl))
+        else if (Input.GetKey(KeyCode.Space))
         {
             //animation_controller.SetBool("jumping", true);
-            jump = 10f;
+            if (flag)
+                jump = 15f;
         }
         else
         {
@@ -92,7 +98,13 @@ public class AJ : MonoBehaviour
             animation_controller.SetBool("running", false);
             animation_controller.SetBool("jumping", false);
         }
-
+        /*
+        if (Input.GetKey(KeyCode.Space))
+        {
+            //animation_controller.SetBool("jumping", true);
+            if (flag)
+                jump = jumpSpeed;
+        }*/
 
         if (Input.GetKey(KeyCode.LeftArrow) && !animation_controller.GetCurrentAnimatorStateInfo(0).IsName("jumping"))
         {
@@ -109,10 +121,13 @@ public class AJ : MonoBehaviour
         float zdirection = Mathf.Cos(Mathf.Deg2Rad * transform.rotation.eulerAngles.y);
         //transform.position.y += jump;
         movement_direction = new Vector3(xdirection, 0.0f, zdirection);
+        //transform.position.y
         //movement_direction.y += jump;
         //movement_direction.y -= 20.0f * Time.deltaTime;
         // character controller's move function is useful to prevent the character passing through the terrain
         // (changing transform's position does not make these checks)
+
+        /*
         if (transform.position.y > 0.0f) // if the character starts "climbing" the terrain, drop her down
         {
             Vector3 lower_character = movement_direction * velocity * Time.deltaTime;
@@ -121,15 +136,21 @@ public class AJ : MonoBehaviour
             character_controller.Move(lower_character);
         }
         else
+        */
         {
-            movement_direction.y += jump;
-            character_controller.Move(movement_direction * velocity * Time.deltaTime);
+            //movement_direction = movement_direction * velocity;
+            jump -= gravity * Time.deltaTime;
+            //if (jump < 0.0f) jump = 0.0f;
+            movement_direction = new Vector3(movement_direction.x * velocity, jump, movement_direction.z * velocity);
+            character_controller.Move(movement_direction * Time.deltaTime);
+            /*
             if(jump > 0.0f && velocity == 0.0f)
             {
                 movement_direction = new Vector3(0.0f, jump, 0.0f);
-                velocity = 2.0f;
-                character_controller.Move(movement_direction * velocity * Time.deltaTime);
+                //velocity = 2.0f;
+                character_controller.Move(movement_direction * Time.deltaTime);
             }
+            */
         }
     }
 }
