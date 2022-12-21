@@ -16,7 +16,9 @@ public class Turret : MonoBehaviour
     private CapsuleCollider aj_capsule_collider;
     private Collider turret_collider;
     private GameObject aj_game_object;
-    private BossLevelOne level;
+    public BossLevelOne level;
+    public AudioSource audio_source;
+    public AudioClip apple_shoot_sfx;
 
     // Start is called before the first frame update
     void Start()
@@ -38,11 +40,6 @@ public class Turret : MonoBehaviour
         aj_capsule_collider = aj_game_object.GetComponent<CapsuleCollider>();
         turret_collider = GetComponent<Collider>();
 
-        GameObject level_obj = GameObject.FindGameObjectWithTag("BossLevelOne");
-        if (level_obj == null)
-            Debug.Log("Error: Could not find game object with tag BossLevelOne");
-        level = level_obj.GetComponent<BossLevelOne>();
-
         StartCoroutine("Spawn");
     }
 
@@ -58,7 +55,7 @@ public class Turret : MonoBehaviour
 
         RaycastHit hit;
         
-        //Only fire turret if the player is not memorizing the platforms
+        //Only aim turret if the player is not memorizing the platforms
         if (!level.cutscene_being_shown)
         {
             if (Physics.Raycast(turret_centroid, direction_from_turret_to_aj, out hit, Mathf.Infinity))
@@ -83,8 +80,9 @@ public class Turret : MonoBehaviour
     private IEnumerator Spawn()
     {
         while (true)
-        {            
-            if (aj_is_accessible)
+        {           
+            //Only fire turret if the player is not memorizing the platforms
+            if (aj_is_accessible && !level.cutscene_being_shown)
             {
                 GameObject new_object = Instantiate(projectile_template, projectile_starting_pos, Quaternion.identity);
                 Apple apple_component = new_object.GetComponent<Apple>();
@@ -94,6 +92,8 @@ public class Turret : MonoBehaviour
                 apple_component.birth_turret = transform.gameObject;
             }
             yield return new WaitForSeconds(shooting_delay); // next shot will be shot after this delay
+            if (!level.cutscene_being_shown)
+                audio_source.PlayOneShot(apple_shoot_sfx);
         }
     }
 

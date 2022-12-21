@@ -9,11 +9,16 @@ public class Apple : MonoBehaviour
     public float birth_time;
     public GameObject birth_turret;
     public GameObject claire;
+    private BossLevelOne level;
 
     // Start is called before the first frame update
     void Start()
     {        
         //claire = GameObject.Find("Claire");
+        GameObject level_obj = GameObject.FindGameObjectWithTag("BossLevelOne");
+        if (level_obj == null)
+            Debug.Log("Error: Could not find game object with tag BossLevelOne");
+        level = level_obj.GetComponent<BossLevelOne>();
     }
 
     // Update is called once per frame
@@ -47,13 +52,14 @@ public class Apple : MonoBehaviour
         // }
         if (other.gameObject.name == "Aj")
         {
-            Debug.Log("Hit AJ!");
+            //Play sfx for when apple hits the player
+            level.audio_source.PlayOneShot(level.apple_hit_sfx);
             Destroy(transform.gameObject);
         }
-        else if (other.gameObject.name != birth_turret.name && other.gameObject.name != transform.name)
+        else if (birth_turret != null)
         {
-            Debug.Log("Collided with wall!");
-            Destroy(transform.gameObject);
+            if (other.gameObject.name != birth_turret.name && other.gameObject.name != transform.name)
+                Destroy(transform.gameObject);
         }
     }
 }

@@ -9,6 +9,8 @@ public class PlatformFall : MonoBehaviour
     float time_since_jumped_on = 0.0f;
     public float fall_speed;
     public float duration;
+    public BossLevelOne level;
+    private bool platform_fall_sfx_played;
 
     void Start()
     {
@@ -16,6 +18,8 @@ public class PlatformFall : MonoBehaviour
         fall_speed = 14.0f;
         //The duration of time for the platform to go from its normal color to red after being jumped on
         duration = 90.0f;
+
+        platform_fall_sfx_played = false;
     }
 
     void OnTriggerEnter(Collider other)
@@ -36,6 +40,11 @@ public class PlatformFall : MonoBehaviour
 
         if (time_since_jumped_on > 0.5f)
         {
+            if (!platform_fall_sfx_played)
+            {
+                level.audio_source.PlayOneShot(level.platform_fall_sfx);
+                platform_fall_sfx_played = true;
+            }
             time_elapsed += Time.deltaTime / fall_speed;
             transform.position = new Vector3(transform.position.x, transform.position.y - time_elapsed, transform.position.z);
         }
